@@ -20,9 +20,6 @@ class ListWidget(QWidget):
 
         self.delete = QPushButton("Delete")
         self.delete.clicked.connect(self.delete_Task)
-                                      
-        self.hidden_labelRow = QLabel()
-        self.hidden_labelRow.hide()
 
         self.hidden_labelId = QLabel()
         self.hidden_labelId.hide()
@@ -30,16 +27,20 @@ class ListWidget(QWidget):
         ListWidgetLayout.addWidget(self.Todo_Label)
         ListWidgetLayout.addWidget(self.Complete)
         ListWidgetLayout.addWidget(self.delete)
-        ListWidgetLayout.addWidget(self.hidden_labelRow)
         ListWidgetLayout.addWidget(self.hidden_labelId)
 
     def complete_todo(self):
-        print(self.hidden_labelRow.text())
+        self.Todo_Label.setText("Completed")
+        idNum = self.hidden_labelId.text()
+        completeRequest = requests.put(f'http://127.0.0.1:8000/complete/{idNum}') 
 
     def delete_Task(self, e):
         selected_item = self.Todo_List.currentItem()
         if selected_item:
             self.Todo_List.takeItem(self.Todo_List.row(selected_item))
+        #need to make it so that tasks are deleted too
+        idNum = int(self.hidden_labelId.text())
+        deleteRequest = requests.delete(f'http://127.0.0.1:8000/delete/{idNum}')
 
 class Example(QWidget):
     def __init__(self):
@@ -73,7 +74,19 @@ class Example(QWidget):
 
         self.index = 0
 
-        #my_tasks = requests.get()
+        my_tasks = requests.get("http://127.0.0.1:8000/todo")
+        JsonTask = my_tasks.json()
+        for i in JsonTask:
+            self.item = QListWidgetItem()
+            TodoWidget = ListWidget(self.Todo_List)
+            TodoWidget.Todo_Label.setText(i['String_Todo'])
+            TodoWidget.hidden_labelId.setText(str(i['task_id']))
+            #Need to add request so that I can query the API
+
+            self.item.setSizeHint(TodoWidget.sizeHint())
+
+            self.Todo_List.addItem(self.item)
+            self.Todo_List.setItemWidget(self.item, TodoWidget)
 
         """Note_Frame = QFrame()
         Note_Frame.setGeometry(20,20,100,100)
@@ -88,15 +101,19 @@ class Example(QWidget):
 
     def Enter_Todo(self):
 
-        self.index += 1
-
         text = self.input_todo.text()
         self.item = QListWidgetItem()
         TodoWidget = ListWidget(self.Todo_List)
         TodoWidget.Todo_Label.setText(text)
         #Need to add request so that I can query the API
+        postDict = {
+            'task': self.input_todo.text(),
+            'due_date': "WIP",
+            'complete': False
+        }
+        TodoPost = requests.post('http://127.0.0.1:8000/todo/',json=postDict)
 
-        TodoWidget.hidden_labelRow.setText(str(self.index))
+
 
         self.item.setSizeHint(TodoWidget.sizeHint())
 

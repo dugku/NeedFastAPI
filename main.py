@@ -38,16 +38,13 @@ async def input_Todo(todo: Todo, db: Session = Depends(get_db)):
     db.add(taskEntry)
     db.commit()
     return {'message': "Completed"} 
-@app.get("/todo/{task}", )   
-async def get_todo(task:str ):
-    if task in itemDict:
-        return {"task": task, **itemDict[task]}
-    else: 
-        return {"error", "404 not found"}
+@app.get("/todo", )   
+async def get_todo(db: Session = Depends(get_db) ):
+    return db.query(models.TaskQue).all()
 
 
 @app.put("/complete/{task_id}")
-async def complete_todo(task_id: int,todo: Todo ,db: Session = Depends(get_db)):
+async def complete_todo(task_id: int,db: Session = Depends(get_db)):
     change_complete = db.query(models.TaskQue).filter(models.TaskQue.task_id == task_id).update({"complete": True})
 
     if change_complete == None:
