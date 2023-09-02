@@ -36,14 +36,10 @@ class ListWidget(QWidget):
     def complete_todo(self):
         print(self.hidden_labelRow.text())
 
-    def delete_Task(self):
-        for i in range(self.Todo_List.count()):
-            item = self.Todo_List.item(i)
-            if item: 
-                widget = self.Todo_List.itemWidget(item)
-                if widget:
-                    text = widget.hidden_labelRow.text()
-                    print(text)
+    def delete_Task(self, e):
+        selected_item = self.Todo_List.currentItem()
+        if selected_item:
+            self.Todo_List.takeItem(self.Todo_List.row(selected_item))
 
 class Example(QWidget):
     def __init__(self):
