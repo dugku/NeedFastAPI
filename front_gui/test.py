@@ -7,20 +7,45 @@ import sys
 import random
 
 class ListWidget(QWidget):
-    def __init__(self, parent=None):
-        super(ListWidget,self).__init__()
+    def __init__(self,Todo_List, parent=None):
+        super(ListWidget,self).__init__(parent)
+
+        self.Todo_List = Todo_List
+
 
         ListWidgetLayout = QHBoxLayout(self)
         self.Todo_Label = QLabel()
         self.Complete = QPushButton("Complete")
         self.Complete.clicked.connect(self.complete_todo)
-        self.num = []
+
+        self.delete = QPushButton("Delete")
+        self.delete.clicked.connect(self.delete_Task)
+                                      
+        self.hidden_labelRow = QLabel()
+        self.hidden_labelRow.hide()
+
+        self.hidden_labelId = QLabel()
+        self.hidden_labelId.hide()
+        
         ListWidgetLayout.addWidget(self.Todo_Label)
         ListWidgetLayout.addWidget(self.Complete)
+        ListWidgetLayout.addWidget(self.delete)
+        ListWidgetLayout.addWidget(self.hidden_labelRow)
+        ListWidgetLayout.addWidget(self.hidden_labelId)
 
     def complete_todo(self):
-        print("Yes")
-class Example(QMainWindow):
+        print(self.hidden_labelRow.text())
+
+    def delete_Task(self):
+        for i in range(self.Todo_List.count()):
+            item = self.Todo_List.item(i)
+            if item: 
+                widget = self.Todo_List.itemWidget(item)
+                if widget:
+                    text = widget.hidden_labelRow.text()
+                    print(text)
+
+class Example(QWidget):
     def __init__(self):
         super(Example,self).__init__()
 
@@ -49,6 +74,11 @@ class Example(QMainWindow):
         self.Todo_List.setGeometry(0,0,500,700)
         frame_layout.addWidget(list_frame)
 
+
+        self.index = 0
+
+        #my_tasks = requests.get()
+
         """Note_Frame = QFrame()
         Note_Frame.setGeometry(20,20,100,100)
         Note_Frame.setStyleSheet("background: red")
@@ -57,15 +87,20 @@ class Example(QMainWindow):
 
         frame_layout.addLayout(Hor_Frame_Layout)"""
         main = QWidget(self)
-        main.setGeometry(50,50,900,700)
+        main.setGeometry(900,700,50,50)
         self.show()
+
     def Enter_Todo(self):
+
+        self.index += 1
+
         text = self.input_todo.text()
         self.item = QListWidgetItem()
-
-        TodoWidget = ListWidget()
+        TodoWidget = ListWidget(self.Todo_List)
         TodoWidget.Todo_Label.setText(text)
-        TodoWidget.num.append(self.index + 1)
+        #Need to add request so that I can query the API
+
+        TodoWidget.hidden_labelRow.setText(str(self.index))
 
         self.item.setSizeHint(TodoWidget.sizeHint())
 
@@ -73,8 +108,7 @@ class Example(QMainWindow):
         self.Todo_List.setItemWidget(self.item, TodoWidget)
 
     def delete(self):
-        TodoWidget = ListWidget()
-        print(TodoWidget.num)
+        print("Hi")
 
 
 
